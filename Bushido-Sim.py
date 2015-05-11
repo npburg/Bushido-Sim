@@ -24,6 +24,34 @@ def deal( deck, player_hands ):
     return remainder_deck
 
 
+class PlayerAIIntermediate:
+    def __init__( self, name ):
+        self.name = name
+        
+    def pickCardToAttack( self, hand ):
+        hand.sort()
+        if hand[0] is 1 and hand[-1] is DECK_SIZE:
+            return hand[0]
+            
+        hand.reverse()
+        for i in range(1, len( hand ) ):
+            if hand[ i-1 ] - 1 is hand[ i ] and i+1 < len( hand ) and hand[ i ] is hand[ i+1 ] + 1:
+                return hand[i]
+        return hand[0]
+            
+        
+    def pickCardToDefend( self, Acard, hand ):
+        if Acard - 1 in hand:
+            return Acard - 1
+        hand.sort()
+        hand.reverse()
+        closets = Acard - 1
+        for card in hand:
+            if card < Acard:
+                return card
+        return hand[-1]
+
+
 class PlayerAISimple:
     def __init__( self, name ):
         self.name = name
@@ -33,14 +61,14 @@ class PlayerAISimple:
         
     def pickCardToDefend( self, Acard, hand ):
         if Acard - 1 in hand:
-            return card - 1
+            return Acard - 1
         hand.sort()
         hand.reverse()
         closets = Acard - 1
         for card in hand:
             if card < Acard:
                 return card
-        return hand[:]
+        return hand[-1]
 
 
 class PlayerAIRandom:
@@ -75,7 +103,9 @@ class Engine:
     
     @staticmethod
     def scoreCards( Acard, Dcard ):
-        if Acard < Dcard:
+        if Acard is DECK_SIZE and Dcard is 1:
+            return 0
+        elif Acard < Dcard:
             return Acard
         elif Acard - 1 is Dcard:
             return 0
@@ -113,8 +143,9 @@ class Engine:
         return score
                 
 playerAIs = []
-playerAIs.append( PlayerAI( "Player 1" ) )
-playerAIs.append( PlayerAI( "Player 2" ) )
+playerAIs.append( PlayerAIIntermediate( "Player 1" ) )
+playerAIs.append( PlayerAISimple( "Player 2" ) )
+
 wins = [0,0,0]
 engine = Engine( playerAIs )
 
